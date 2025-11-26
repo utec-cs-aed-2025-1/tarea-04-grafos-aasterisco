@@ -10,6 +10,7 @@
 #include "graph.h"
 #include <unordered_map>
 #include <set>
+#include <queue>
 
 
 // Este enum sirve para identificar el algoritmo que el usuario desea simular
@@ -46,10 +47,56 @@ class PathFindingManager {
         }
     };
 
+    // Complejidad O((V+E)logV) por uso de MinHeap
     void dijkstra(Graph &graph) {
         std::unordered_map<Node *, Node *> parent;
-        // TODO: Add your code here
-
+        if (src == NULL || dest == NULL) {
+            set_final_path(parent);
+            return;
+        }
+        std::unordered_map<Node*, double> dist;
+        std::unordered_map<Node*, bool> visitado;
+        double INF = 1000000000.0;
+        for (auto it = graph.nodes.begin(); it != graph.nodes.end(); ++it) {
+            Node* nodo = it->second;
+            dist[nodo] = INF;
+            visitado[nodo] = false;
+            parent[nodo] = NULL;
+        }
+        dist[src] = 0.0;
+        parent[src] = NULL;
+        std::priority_queue<std::pair<double, Node*>,std::vector<std::pair<double, Node*> >,std::greater<std::pair<double, Node*>>> pq;
+        pq.push(std::make_pair(0.0, src));
+        while (!pq.empty()) {
+            std::pair<double, Node*> top = pq.top();
+            pq.pop();
+            double dist_u = top.first;
+            Node* u = top.second;
+            if (visitado[u]) continue;
+            visitado[u] = true;
+            if (u == dest) break;
+            for (std::size_t i = 0; i < u->edges.size(); ++i) {
+                Edge* edge = u->edges[i];
+                Node* v = NULL;
+                if (edge->src == u) {
+                    v = edge->dest;
+                } else if (edge->dest == u) {
+                    v = edge->src;
+                } else {
+                    continue;
+                }
+                if (visitado[v]) continue;
+                double peso = edge->length;
+                double nueva_dist = dist_u + peso;
+                if (nueva_dist < dist[v]) {
+                    dist[v] = nueva_dist;
+                    parent[v] = u;
+                    pq.push(std::make_pair(nueva_dist, v));
+                    sfLine linea_explorada(u->coord,v->coord,sf::Color(100, 100, 255),1.0f);
+                    visited_edges.push_back(linea_explorada);
+                }
+            }
+        }
         set_final_path(parent);
     }
 
@@ -83,9 +130,29 @@ class PathFindingManager {
     // Este path será utilizado para hacer el 'draw()' del 'path' entre 'src' y 'dest'.
     //*
     void set_final_path(std::unordered_map<Node *, Node *> &parent) {
+        path.clear();
+        if (dest == NULL) return;
+        if (parent.find(dest) == parent.end()) return;
         Node* current = dest;
-
-        // TODO: Add your code here
+        std::vector<sfLine> temporal;
+        while (current != NULL && current != src) {
+            Node* p = parent[current];
+            if (p == NULL) {
+                break; // no hay más padres, se corta el camino
+            }
+            // Línea desde el padre hasta el hijo (p -> current)
+            sfLine linea_camino(
+                p->coord,
+                current->coord,
+                sf::Color::Red,  // color del camino final
+                2.0f             // grosor del camino
+            );
+            temporal.push_back(linea_camino);
+            current = p; // seguimos retrocediendo hacia el origen
+        }
+        for (int i = (int)temporal.size() - 1; i >= 0; --i) {
+            path.push_back(temporal[i]);
+        }
     }
 
 public:
@@ -98,8 +165,14 @@ public:
         if (src == nullptr || dest == nullptr) {
             return;
         }
-
-        // TODO: Add your code here
+        path.clear();
+        visited_edges.clear();
+        // Ejecutar el algoritmo seleccionado
+        if (algorithm == Dijkstra) {
+            dijkstra(graph);
+        } else if (algorithm == AStar) {
+            a_star(graph);
+        }
     }
 
     void reset() {
