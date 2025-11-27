@@ -112,9 +112,87 @@ private:
         set_final_path(parent);
     }
 
+    // Complejidad O((V+E)logV) por uso de MinHeap con heurística
     void a_star(Graph &graph) {
         std::unordered_map<Node *, Node *> parent;
         // TODO: Add your code here
+        if (src == NULL || dest == NULL) {
+            set_final_path(parent);
+            return;
+        }
+
+        // g[n] = costo real desde el origen hasta n
+        std::unordered_map<Node*, double> g;
+        // f[n] = g[n] + h[n]
+        std::unordered_map<Node*, double> f;
+        std::unordered_map<Node*, bool> visitado;
+
+        double INF = 1000000000.0;
+
+        // Inicializar todos los nodos
+        for (auto it = graph.nodes.begin(); it != graph.nodes.end(); ++it) {
+            Node* nodo = it->second;
+            g[nodo] = INF;
+            f[nodo] = INF;
+            visitado[nodo] = false;
+            parent[nodo] = NULL;
+        }
+
+        // Configurar nodo inicial
+        g[src] = 0.0;
+        f[src] = heuristic(src, dest);
+        parent[src] = NULL;
+
+        // Cola de prioridad ordenada por f (g + heurística)
+        std::priority_queue<std::pair<double, Node*>,
+                           std::vector<std::pair<double, Node*>>,
+                           std::greater<std::pair<double, Node*>>> pq;
+
+        pq.push(std::make_pair(f[src], src));
+
+        while (!pq.empty()) {
+            std::pair<double, Node*> top = pq.top();
+            pq.pop();
+            Node* u = top.second;
+
+            if (visitado[u]) continue;
+            visitado[u] = true;
+
+            if (u == dest)
+                break;
+
+            for (std::size_t i = 0; i < u->edges.size(); ++i) {
+                Edge* edge = u->edges[i];
+                Node* v = NULL;
+
+                if (edge->src == u) {
+                    v = edge->dest;
+                } else if (edge->dest == u) {
+                    v = edge->src;
+                } else {
+                    continue;
+                }
+
+                if (visitado[v]) continue;
+
+                double peso = edge->length;
+                double tentative_g = g[u] + peso;
+
+                if (tentative_g < g[v]) {
+                    g[v] = tentative_g;
+                    parent[v] = u;
+                    f[v] = g[v] + heuristic(v, dest);
+                    pq.push(std::make_pair(f[v], v));
+
+                    // Dibujar arista explorada
+                    sfLine linea_explorada(u->coord, v->coord, sf::Color(100, 100, 255), 1.0f);
+                    visited_edges.push_back(linea_explorada);
+
+                    // Visualizar el progreso del algoritmo
+                    render(graph);
+                }
+            }
+        }
 
         set_final_path(parent);
     }

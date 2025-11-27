@@ -1,0 +1,3 @@
+/home/yiyi/Escritorio/Yeimi/UTEC/4to ciclo/AED/Tareas/tarea-04-grafos-aasterisco/build/CMakeFiles/homework_graph.dir
+/home/yiyi/Escritorio/Yeimi/UTEC/4to ciclo/AED/Tareas/tarea-04-grafos-aasterisco/build/CMakeFiles/edit_cache.dir
+/home/yiyi/Escritorio/Yeimi/UTEC/4to ciclo/AED/Tareas/tarea-04-grafos-aasterisco/build/CMakeFiles/rebuild_cache.dir
