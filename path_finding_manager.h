@@ -112,6 +112,14 @@ private:
         set_final_path(parent);
     }
 
+    // Función heurística: distancia euclidiana (línea recta) entre dos nodos
+    double heuristic(Node* a, Node* b) {
+        float dx = a->coord.x - b->coord.x;
+        float dy = a->coord.y - b->coord.y;
+        return std::sqrt(dx * dx + dy * dy);
+    }
+
+
     // Complejidad O((V+E)logV) por uso de MinHeap con heurística
     void a_star(Graph &graph) {
         std::unordered_map<Node *, Node *> parent;

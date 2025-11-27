@@ -1,4 +1,5 @@
-<img width="572" height="746" alt="image" src="https://github.com/user-attachments/assets/fa067af7-7902-4914-899f-60b0559795ec" /><img width="572" height="746" alt="image" src="https://github.com/user-attachments/assets/8231daff-956b-4221-b6c9-b452ed6596a3" />[![Review Assignment Due Date](https://classroom.github.com/assets/deadline-readme-button-22041afd0340ce965d47ae6ef1cefeee28c7c493a6346c4f15d667ab976d596c.svg)](https://classroom.github.com/a/5zgGDtf4)
+<img width="572" height="746" alt="image" src="https://github.com/user-attachments/assets/fa067af7-7902-4914-899f-60b0559795ec" />
+[![Review Assignment Due Date](https://classroom.github.com/assets/deadline-readme-button-22041afd0340ce965d47ae6ef1cefeee28c7c493a6346c4f15d667ab976d596c.svg)](https://classroom.github.com/a/5zgGDtf4)
 [![Open in Visual Studio Code](https://classroom.github.com/assets/open-in-vscode-2e0aaae1b6195c2367325f4f02e2d04e9abb55f0b24a779b69b11b9e10269abc.svg)](https://classroom.github.com/online_ide?assignment_repo_id=21695282&assignment_repo_type=AssignmentRepo)
 # Tarea de Grafos
 
@@ -93,7 +94,34 @@ En total, la memoria extra es: S(∣V∣,∣E∣)=O(∣V∣)+O(∣V∣)+O(∣V�
 
 ### A*
 
-![img.png](A_Evidencia.png)
+<img width="572" height="746" alt="image" src="https://github.com/user-attachments/assets/8231daff-956b-4221-b6c9-b452ed6596a3" />
+
+Complejidad temporal:
+Sea V el número de nodos y E el número de aristas del grafo. En esta implementación de A*, primero se inicializan las 
+distancias g y f con un recorrido sobre todos los nodos: O(∣V∣). La cola de prioridad pq está implementada con 
+std::priority_queue (min-heap). Cada extracción del nodo con menor f cuesta O(log∣V∣). Cada actualización de distancia 
+hace un push en pq, que cuesta O(log∣V∣). Cada arista se "relaja" a lo sumo una vez (en un grafo dirigido) o dos veces 
+(en uno no dirigido), lo que es O(∣E∣) iteraciones del bucle interno. Por tanto, el coste total es: 
+T(∣V∣,∣E∣)=O(∣V∣)+O(∣V∣log∣V∣)+O(∣E∣log∣V∣)=O((∣V∣+∣E∣)log∣V∣)
+
+En el mejor caso, si A* encuentra el camino óptimo rápidamente gracias a la heurística, podría explorar menos nodos que 
+Dijkstra. En el peor caso (por ejemplo, con una heurística inadmisible o muy mala), podría comportarse similar a 
+Dijkstra o incluso peor.
+
+Complejidad Espacial:
+g: std::unordered_map<Node*, double> almacena el costo real desde el origen hasta cada nodo, lo que tiene una 
+complejidad espacial de O(∣V∣)
+f: std::unordered_map<Node*, double>, almacena el costo estimado total (g + heurística) para cada nodo lo que tiene una
+complejidad espacial de O(∣V∣)
+parent: std::unordered_map<Node*, Node*>, almacena el predecesor de cada nodo en el camino lo que tiene una
+complejidad espacial de O(∣V∣)
+visitado: std::unordered_map<Node*, bool>, marca los nodos procesados, lo que tiene una
+complejidad espacial de O(∣V∣)
+pq: std::priority_queue, en el peor caso puede contener todos los nodos, cuya complejidad espacial es O(∣V∣)
+visited_edges: vector para visualización, puede guardar hasta una entrada por arista visitada, lo que tiene una
+complejidad espacial de O(∣E∣) en el peor caso 
+
+Por tanto, en total, la memoria extra es: S(∣V∣,∣E∣)=O(∣V∣)+O(∣V∣)+O(∣V∣)+O(∣V∣)+O(∣V∣)+O(∣E∣)=O(∣V∣+∣E∣)
 
 
 ### Best First Search 
