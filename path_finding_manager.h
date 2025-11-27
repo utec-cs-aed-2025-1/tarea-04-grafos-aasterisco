@@ -6,18 +6,25 @@
 #define HOMEWORK_GRAPH_PATH_FINDING_MANAGER_H
 
 
+#include <queue>
+
 #include "window_manager.h"
 #include "graph.h"
 #include <unordered_map>
 #include <set>
+#include <cmath>
 #include <queue>
+#include <climits>
 
+#include <unordered_set>
+
+using namespace std;
 
 // Este enum sirve para identificar el algoritmo que el usuario desea simular
 enum Algorithm {
-    None,
     Dijkstra,
-    AStar
+    AStar,
+    BestFirst
 };
 
 
@@ -34,16 +41,21 @@ enum Algorithm {
 //     - dest           : Nodo al que se quiere llegar desde 'src'
 //*
 class PathFindingManager {
+private:
     WindowManager *window_manager;
     std::vector<sfLine> path;
     std::vector<sfLine> visited_edges;
+    int render_counter = 0;
+    const int RENDER_FREQUENCY = 50;
+    Graph* current_graph = nullptr;
 
     struct Entry {
         Node* node;
         double dist;
+        double priority; // Para A* y Best First
 
         bool operator < (const Entry& other) const {
-            return dist < other.dist;
+            return priority > other.priority;  // Min-heap
         }
     };
 
@@ -107,51 +119,82 @@ class PathFindingManager {
         set_final_path(parent);
     }
 
-    //* --- render ---
-    // En cada iteración de los algoritmos esta función es llamada para dibujar los cambios en el 'window_manager'
-    void render() {
-        sf::sleep(sf::milliseconds(10));
-        // TODO: Add your code here
+    void best_first_search(Graph &graph) {
+        std::unordered_map<Node *, Node *> parent;
+        std::unordered_set<Node *> visited;
+        priority_queue<Entry> pq;
+        double h_start = euclid(src, dest);
+        pq.push({src, 0, h_start});
+        while (!pq.empty()) {
+            Entry current_entry = pq.top();
+            pq.pop();
+            Node* current = current_entry.node;
+            if (visited.find(current) != visited.end()) {
+                continue;
+            }
+            visited.insert(current);
+            if (current == dest) {
+                break;
+            }
+            for (Edge* edge : current->edges) {
+                Node* vecino = nullptr;
+                if (edge->src == current) {
+                    vecino = edge->dest;
+                } else if (!edge->one_way && edge->dest == current) {
+                    vecino = edge->src;
+                } else {
+                    continue;
+                }
+                if (visited.find(vecino) != visited.end()) {
+                    continue;
+                }
+                double heuristic = euclid(vecino, dest);
+                parent[vecino] = current;
+                pq.push({vecino, 0, heuristic});
+                visited_edges.push_back(sfLine(current->coord, vecino->coord,
+                                              sf::Color::Yellow, 1.5f));
+            }
+        }
+        set_final_path(parent);
     }
 
-    //* --- set_final_path ---
-    // Esta función se usa para asignarle un valor a 'this->path' al final de la simulación del algoritmo.
-    // 'parent' es un std::unordered_map que recibe un puntero a un vértice y devuelve el vértice anterior a el,
-    // formando así el 'path'.
-    //
-    // ej.
-    //     parent(a): b
-    //     parent(b): c
-    //     parent(c): d
-    //     parent(d): NULL
-    //
-    // Luego, this->path = [Line(a.coord, b.coord), Line(b.coord, c.coord), Line(c.coord, d.coord)]
-    //
-    // Este path será utilizado para hacer el 'draw()' del 'path' entre 'src' y 'dest'.
-    //*
+    double euclid(Node* a, Node* b) {
+        double dx = a->coord.x - b->coord.x;
+        double dy = a->coord.y - b->coord.y;
+        return sqrt(dx * dx + dy * dy);
+    }
+
+    void render() {
+        if (current_graph == nullptr) {
+            return;
+        }
+        window_manager->clear();
+        for (const auto& [id, node] : current_graph->nodes) {
+            node->draw(window_manager->get_window());
+        }
+        for (const sfLine& line : visited_edges) {
+            line.draw(window_manager->get_window(), sf::RenderStates::Default);
+        }
+        if (src != nullptr) {
+            src->draw(window_manager->get_window());
+        }
+        if (dest != nullptr) {
+            dest->draw(window_manager->get_window());
+        }
+        window_manager->display();
+        sf::sleep(sf::milliseconds(1));
+    }
+
     void set_final_path(std::unordered_map<Node *, Node *> &parent) {
         path.clear();
-        if (dest == NULL) return;
-        if (parent.find(dest) == parent.end()) return;
         Node* current = dest;
-        std::vector<sfLine> temporal;
-        while (current != NULL && current != src) {
-            Node* p = parent[current];
-            if (p == NULL) {
-                break; // no hay más padres, se corta el camino
+        while (current != nullptr && parent.find(current) != parent.end()) {
+            Node* prev = parent[current];
+            if (prev != nullptr) {
+                path.push_back(sfLine(prev->coord, current->coord,
+                                     sf::Color::Red, 3.0f));
             }
-            // Línea desde el padre hasta el hijo (p -> current)
-            sfLine linea_camino(
-                p->coord,
-                current->coord,
-                sf::Color::Red,  // color del camino final
-                2.0f             // grosor del camino
-            );
-            temporal.push_back(linea_camino);
-            current = p; // seguimos retrocediendo hacia el origen
-        }
-        for (int i = (int)temporal.size() - 1; i >= 0; --i) {
-            path.push_back(temporal[i]);
+            current = prev;
         }
     }
 
@@ -167,27 +210,34 @@ public:
         }
         path.clear();
         visited_edges.clear();
-        // Ejecutar el algoritmo seleccionado
-        if (algorithm == Dijkstra) {
-            dijkstra(graph);
-        } else if (algorithm == AStar) {
-            a_star(graph);
+        render_counter = 0;
+        current_graph = &graph;
+        switch (algorithm) {
+            case Dijkstra:
+                dijkstra(graph);
+                break;
+            case AStar:
+                a_star(graph);
+                break;
+            case BestFirst:
+                best_first_search(graph);
+                break;
+            default:
+                break;
         }
     }
 
     void reset() {
         path.clear();
         visited_edges.clear();
-
+        render_counter = 0;
         if (src) {
             src->reset();
             src = nullptr;
-            // ^^^ Pierde la referencia luego de restaurarlo a sus valores por defecto
         }
         if (dest) {
             dest->reset();
             dest = nullptr;
-            // ^^^ Pierde la referencia luego de restaurarlo a sus valores por defecto
         }
     }
 
