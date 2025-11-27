@@ -1,4 +1,4 @@
-[![Review Assignment Due Date](https://classroom.github.com/assets/deadline-readme-button-22041afd0340ce965d47ae6ef1cefeee28c7c493a6346c4f15d667ab976d596c.svg)](https://classroom.github.com/a/5zgGDtf4)
+<img width="572" height="746" alt="image" src="https://github.com/user-attachments/assets/fa067af7-7902-4914-899f-60b0559795ec" /><img width="572" height="746" alt="image" src="https://github.com/user-attachments/assets/8231daff-956b-4221-b6c9-b452ed6596a3" />[![Review Assignment Due Date](https://classroom.github.com/assets/deadline-readme-button-22041afd0340ce965d47ae6ef1cefeee28c7c493a6346c4f15d667ab976d596c.svg)](https://classroom.github.com/a/5zgGDtf4)
 [![Open in Visual Studio Code](https://classroom.github.com/assets/open-in-vscode-2e0aaae1b6195c2367325f4f02e2d04e9abb55f0b24a779b69b11b9e10269abc.svg)](https://classroom.github.com/online_ide?assignment_repo_id=21695282&assignment_repo_type=AssignmentRepo)
 # Tarea de Grafos
 
@@ -73,6 +73,11 @@ Evidencia funcionamiento Dijkstra:
 - Lineas azules: arbol que Dijkstra exploró
 - Linea roja: camino mínimo
 ![img.png](dijkstraEvidencia.png)
+
+### A*
+
+![img.png](A_Evidencia.png)
+
 
 ### Best First Search 
 El algoritmo de búsqueda Best First Search es una versión más simple que otros algoritmos de búsqueda, aunque no siempre encuentra el camino óptimo. El algoritmo se deja guiar por una heurística, en este caso la distancia euclidiana, es decir, en línea recta hacia el objetivo.
