@@ -74,6 +74,23 @@ Evidencia funcionamiento Dijkstra:
 - Linea roja: camino mínimo
 ![img.png](dijkstraEvidencia.png)
 
+Complejidad temporal:
+Sea V el número de nodos y E el número de aristas del grafo. 
+En esta implementación de Dijkstra: 
+Se inicializan las distancias con un recorrido sobre todos los nodos: O(∣V∣)
+La cola de prioridad pq está implementada con std::set, que internamente es un árbol balanceado: Cada extracción del nodo con menor distancia (pq.begin() + erase) cuesta O(log∣V∣). Cada actualización de distancia hace un erase + insert en pq, cada uno O(log∣V∣). 
+Cada arista se “relaja” a lo sumo una vez (en un grafo dirigido) o dos veces (en uno no dirigido), lo que sigue siendo O(∣E∣) iteraciones del bucle interno. Por tanto, el coste total (ignorando el coste de render() y de la visualización) es: T(∣V∣,∣E∣)=O(∣V∣log∣V∣)+O(∣E∣log∣V∣)=O((∣V∣+∣E∣)log∣V∣)
+
+
+Complejidad Espacial:
+Espacio adicional usado por el algoritmo (sin contar la estructura del grafo): 
+dist: std::unordered_map<Node*, double> -> almacena una distancia por nodo -> O(∣V∣) 
+parent: std::unordered_map<Node*, Node*> → almacena el predecesor de cada nodo en el camino mínimo -> O(∣V∣) 
+pq: std::set<Entry> → en el peor caso puede contener todos los nodos -> O(∣V∣) 
+visited_edges: vector para visualización; puede guardar hasta una entrada por arista visitada -> O(∣E∣) en el peor caso 
+En total, la memoria extra es: S(∣V∣,∣E∣)=O(∣V∣)+O(∣V∣)+O(∣V∣)+O(∣E∣)=O(∣V∣+∣E∣)
+
+
 ### A*
 
 ![img.png](A_Evidencia.png)
@@ -87,9 +104,7 @@ La complejidad temporal es O((V + E) log V), donde V es el número de vértices 
 
 Respecto a la complejidad espacial. En memoria, el algoritmo suele usar O(V), ya que el conjunto de visitados (visited) puede llegar a almacenar todos los vértices (O(V)). Asimismo, el mapa de padres (parent) también guarda a lo más un padre por vértice (O(V)). Respecto, a la cola de prioridad puede contener, en el peor caso, una fracción grande de los vértices (O(V)). El vector de aristas visitadas (visited_edges) puede crecer hasta O(E); en grafos densos E puede ser O(V²), pero en muchos grafos de caminos o mapas E es proporcional a V, manteniendo el uso de memoria en el orden de O(V).
 
-Evidencia funcionamiento Dijstra: 
+Evidencia funcionamiento GBFS: 
 - Lineas amarillas: todas las aristas visitadas durante la búsqueda
 - Linea roja: camino mínimo
-
-
 ![img.png](BFS_Evidencia.png)
