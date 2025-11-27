@@ -85,4 +85,6 @@ Respecto a la complejidad espacial. En memoria, el algoritmo suele usar O(V), ya
 Evidencia funcionamiento Dijstra: 
 - Lineas amarillas: todas las aristas visitadas durante la búsqueda
 - Linea roja: camino mínimo
+
+
 ![img.png](BFS_Evidencia.png)
