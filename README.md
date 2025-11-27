@@ -68,10 +68,21 @@ Además:
 > **Créditos:** Juan Diego Castro Padilla [juan.castro.p@utec.edu.pe](mailto:juan.castro.p@utec.edu.pe)
 
 
-
+### Dijkstra
 Evidencia funcionamiento Dijkstra:
 - Lineas azules: arbol que Dijkstra exploró
 - Linea roja: camino mínimo
 ![img.png](dijkstraEvidencia.png)
 
+### Best First Search 
+El algoritmo de búsqueda Best First Search es una versión más simple que otros algoritmos de búsqueda, aunque no siempre encuentra el camino óptimo. El algoritmo se deja guiar por una heurística, en este caso la distancia euclidiana, es decir, en línea recta hacia el objetivo.
+Se parte del nodo origen. Luego para cada nodo, se calcula qué tan cerca está del destino según la heurística. Se guarda los nodos en una cola de prioridad (min-heap), de modo que siempre se saque primero el nodo, es decir, el que tiene menor valor heurístico. Así, en cada paso se extra el nodo con menor heurística, se marca como visitado. Si no es el destino, se mira a los vecinos, se calcula su heurística y se agregan a la cola. Al llegar al destino, se construye el camino hacia atrás usando un mapa de padres, desde el nodo destino hasta el origen.
 
+La complejidad temporal es O((V + E) log V), donde V es el número de vértices y E el número de aristas. Esto se debe a que se usa una cola de prioridad, donde cada inserción y extracción cuesta O(log V). En el peor caso, el algoritmo puede llegar a procesar todos los vértices (V), lo que aporta aproximadamente O(V log V). También se puede llegar a considerar todas las aristas (E); para cada una se calcula la heurística en O(1) y se inserta en la cola en O(log V), sumando O(E log V). Por último, la reconstrucción del camino al final es O(V), pero este costo queda absorbido por el término dominante O((V + E) log V). En el mejor caso, si el destino es un vecino directo del origen, el tiempo puede ser cercano a O(1). En el peor caso, cuando necesita explorar prácticamente todo el grafo, llega a O((V + E) log V).
+
+Respecto a la complejidad espacial. En memoria, el algoritmo suele usar O(V), ya que el conjunto de visitados (visited) puede llegar a almacenar todos los vértices (O(V)). Asimismo, el mapa de padres (parent) también guarda a lo más un padre por vértice (O(V)). Respecto, a la cola de prioridad puede contener, en el peor caso, una fracción grande de los vértices (O(V)). El vector de aristas visitadas (visited_edges) puede crecer hasta O(E); en grafos densos E puede ser O(V²), pero en muchos grafos de caminos o mapas E es proporcional a V, manteniendo el uso de memoria en el orden de O(V).
+
+Evidencia funcionamiento Dijstra: 
+- Lineas amarillas: todas las aristas visitadas durante la búsqueda
+- Linea roja: camino mínimo
+![img.png](BFS_Evidencia.png)
